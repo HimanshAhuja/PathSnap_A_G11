@@ -1,0 +1,13 @@
+{
+  "stages": [
+    {
+      "stage": "load_trip",
+      "status": "PENDING",
+      "seconds": null,
+      "rows": null,
+      "note": "preprocessing/load_data.py: load_trip() not written yet"
+    }
+  ],
+  "checks": [],
+  "ok": true
+}

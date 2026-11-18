@@ -1,0 +1,64 @@
+{
+  "stages": [
+    {
+      "stage": "load_trip",
+      "status": "OK",
+      "seconds": 0.013835666999999996,
+      "rows": 262,
+      "note": "nodes=1,770 arcs=3,577 route=95"
+    },
+    {
+      "stage": "clean_track",
+      "status": "PENDING",
+      "seconds": null,
+      "rows": null,
+      "note": "preprocessing/clean_data.py: clean_track() not written yet"
+    },
+    {
+      "stage": "build_trip_features",
+      "status": "PENDING",
+      "seconds": null,
+      "rows": null,
+      "note": "features/build_training_data.py not written yet"
+    }
+  ],
+  "checks": [
+    {
+      "check": "track has lon/lat/t columns",
+      "passed": true,
+      "detail": "['lon', 'lat', 't']"
+    },
+    {
+      "check": "track values finite",
+      "passed": true,
+      "detail": "0 non-finite rows"
+    },
+    {
+      "check": "track lon/lat in valid range",
+      "passed": true,
+      "detail": "0 out-of-range rows"
+    },
+    {
+      "check": "arc endpoints index valid nodes",
+      "passed": true,
+      "detail": "0 bad arcs of 3577"
+    },
+    {
+      "check": "route arc_ids index valid arcs",
+      "passed": true,
+      "detail": "0 bad of 95"
+    },
+    {
+      "check": "consecutive route arcs connected",
+      "passed": true,
+      "detail": "100.0% of 94 steps connected"
+    },
+    {
+      "check": "timestamps strictly increasing",
+      "passed": true,
+      "warning": false,
+      "detail": "0 non-increasing steps; median gap 1s, max gap 2s"
+    }
+  ],
+  "ok": true
+}
