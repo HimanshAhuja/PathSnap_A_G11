@@ -134,9 +134,3 @@ and GPS indices, empty candidate sets, candidate miss rate and label balance.
 - [ ] Candidate generation and features
 - [ ] Five-model comparison
 - [ ] Bayesian optimisation, HMM/Viterbi, FastAPI, UI
-
-## AI assistance
-
-AI assistance (Claude) was used for parts of the project scaffolding and integration code, as
-required to be disclosed by the hackathon policy. All experiments and results are produced by
-running the code in this repository.
