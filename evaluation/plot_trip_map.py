@@ -29,7 +29,8 @@ def read_trip(split, trip_id):
     """Use the team loader if it exists; otherwise read the four raw files directly."""
     try:
         from preprocessing.load_data import load_trip
-        return load_trip(split, trip_id)
+        from evaluation.load_adapter import load_trip_normalised
+        return load_trip_normalised(load_trip, split, trip_id)
     except ImportError:
         d = config.DATA_ROOT / split / trip_id
         rd = lambda ext, names: pd.read_csv(d / f"{trip_id}.{ext}", sep=r"\s+", header=None, names=names)

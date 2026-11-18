@@ -37,6 +37,7 @@ import pandas as pd
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 import config  # noqa: E402
 from evaluation.generate_metrics import candidate_miss_rate, top1_accuracy  # noqa: E402
+from evaluation.load_adapter import load_trip_normalised  # noqa: E402
 
 
 class Report:
@@ -191,7 +192,7 @@ def validate_trip(split, trip_id):
     if load_trip is None:
         rep.stage("load_trip", "PENDING", note="preprocessing/load_data.py: load_trip() not written yet")
         return rep
-    trip, secs = _run(rep, "load_trip", load_trip, split, trip_id)
+    trip, secs = _run(rep, "load_trip", load_trip_normalised, load_trip, split, trip_id)
     if trip is None:
         return rep
     rep.stage("load_trip", "OK", secs, len(trip["track"]),
