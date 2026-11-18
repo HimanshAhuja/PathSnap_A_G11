@@ -22,5 +22,10 @@ results/features_*.csv
 results/training_data*.csv
 results/_selftest/
 
+# Generated alignment diagnostics and experiments
+results/*_alignment_diagnostics.csv
+results/candidate_coverage_experiments.csv
+results/student_test_data.csv
+
 # Secrets
 .env
