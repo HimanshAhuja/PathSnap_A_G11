@@ -24,13 +24,18 @@ from sklearn.metrics import (
 # ----------------------------------------------------------------------------
 TARGET = "label"
 META_COLS = ["trip_id", "gps_index", "candidate_arc_id"]  # never model inputs
+#
+# Column names follow Amrit's features/candidate_generation.py and
+# features/feature_extraction.py. Units: metres, degrees, seconds.
 FEATURES = [
-    "distance",            # metres
-    "bearing_difference",  # wrapped angular difference
-    "speed",
-    "heading_change",      # may be NaN at trip endpoints -> imputed in pipeline
-    "segment_length",      # metres
+    "distance_m",              # GPS point -> candidate arc, metres
+    "bearing_difference_deg",  # wrapped angle gap 0..180; NaN when car is ~stationary
+    "speed_mps",               # NaN where the time step is invalid
+    "heading_change_deg",      # NaN for the first two points of a trip
+    "segment_length_m",        # candidate arc length, metres
 ]
+# Optional extra, enabled with --with-projection (agree with Amrit first).
+OPTIONAL_FEATURES = ["projection_fraction"]  # where along the arc the GPS point projects (0..1)
 REQUIRED_COLUMNS = META_COLS + FEATURES + [TARGET]
 
 THRESHOLD = 0.5  # decision threshold for precision/recall/F1/accuracy
