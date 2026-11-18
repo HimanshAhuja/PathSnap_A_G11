@@ -1,0 +1,4 @@
+method,top1_accuracy,route_continuity,route_arc_accuracy,row_level_accuracy
+nearest candidate (no ML),0.43636363636363634,0.6689051689051689,0.5661899897854954,
+combined classifiers only (no HMM),0.8583758937691522,0.7258566978193146,0.9649642492339121,0.950447138962042
+FINAL: combined classifiers + continuity-aware HMM,0.858120531154239,0.9140501110053917,0.9821246169560777,
