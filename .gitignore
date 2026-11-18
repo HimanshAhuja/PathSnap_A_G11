@@ -1,0 +1,24 @@
+# Raw data is supplied separately and is large: do not commit it
+data/train/
+data/student_test/
+data/evaluator_test/
+Student folder/
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+.ipynb_checkpoints/
+
+# OS / editor
+.DS_Store
+.vscode/
+.idea/
+
+# Large intermediate tables (regenerate with features/build_training_data.py)
+results/features_*.parquet
+results/features_*.csv
+
+# Secrets
+.env
