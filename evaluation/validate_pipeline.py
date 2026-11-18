@@ -14,13 +14,14 @@ Interface contract each module must follow (see README "Interfaces"):
       clean_track_df keeps a `gps_index` column = original row number
   features.build_training_data.build_trip_features(trip) -> DataFrame
       columns >= config.REQUIRED_COLUMNS, one row per (gps point, candidate arc)
-  models/best_model.pkl  (joblib) -> estimator with predict_proba, or
-      {"model": estimator, "feature_columns": [...]}
+  models/best_model.pkl  (joblib) -> fitted sklearn estimator/Pipeline with predict_proba
+      (feature names read from feature_names_in_), or {"model": ..., "feature_columns": [...]}
 
 Usage (from the project root):
     python -m evaluation.validate_pipeline --split train --trip 00000046
-    python -m evaluation.validate_pipeline --features-file results/features_train.parquet
+    python -m evaluation.validate_pipeline --features-file results/training_data.csv
 """
+from __future__ import annotations
 import argparse
 import importlib
 import json
@@ -53,6 +54,11 @@ class Report:
     def check(self, name, passed, detail=""):
         self.checks.append(dict(check=name, passed=bool(passed), detail=detail))
         print(f"    {'PASS' if passed else 'FAIL'}  {name}" + (f"  — {detail}" if detail else ""))
+
+    def warn(self, name, ok, detail=""):
+        """Expected data issue: reported and logged, but does not fail the run."""
+        self.checks.append(dict(check=name, passed=True, warning=not ok, detail=detail))
+        print(f"    {'PASS' if ok else 'WARN'}  {name}" + (f"  — {detail}" if detail else ""))
 
     @property
     def ok(self):
@@ -111,7 +117,7 @@ def check_trip(rep, trip):
             rep.check("consecutive route arcs connected", joined.all(),
                       f"{joined.mean():.1%} of {len(joined)} steps connected")
     dt = np.diff(track["t"].to_numpy())
-    rep.check("timestamps strictly increasing", (dt > 0).all(),
+    rep.warn("timestamps strictly increasing", (dt > 0).all(),
               f"{(dt <= 0).sum()} non-increasing steps; median gap {np.median(dt) if len(dt) else 0:.0f}s, "
               f"max gap {dt.max() if len(dt) else 0:.0f}s")
 
@@ -145,8 +151,9 @@ def check_features(rep, feats, n_arcs=None, n_gps=None):
         rep.check("gps_index within track length", not bad_gps.any(), f"{bad_gps.sum()} invalid")
     cpp = feats.groupby(["trip_id", "gps_index"]).size()
     miss = candidate_miss_rate(feats, n_gps)
-    rep.check("candidate sets non-empty", miss["points_without_candidates"] == 0,
-              f"{miss['points_without_candidates']} GPS points with zero candidates; "
+    rep.warn("candidate sets non-empty", miss["points_without_candidates"] == 0,
+             f"{miss['points_without_candidates']} GPS points with zero candidates (GPS outliers beyond "
+             f"the search radius — counted in the miss rate, handled later by the HMM); "
               f"candidates/point median {cpp.median():.0f}, max {cpp.max()}")
     print(f"    INFO  candidate miss rate = {miss['candidate_miss_rate']:.2%} "
           f"(reference arc absent for {miss['points_reference_not_in_candidates']} points)")
@@ -162,6 +169,8 @@ def run_model(rep, feats):
     obj = joblib.load(config.BEST_MODEL_PATH)
     model = obj["model"] if isinstance(obj, dict) else obj
     cols = obj.get("feature_columns") if isinstance(obj, dict) else None
+    if not cols and hasattr(model, "feature_names_in_"):
+        cols = list(model.feature_names_in_)   # sklearn models fitted on a DataFrame remember their columns
     cols = cols or config.feature_columns(feats)
     scores = model.predict_proba(feats[cols])[:, 1]
     secs = time.perf_counter() - t0

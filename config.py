@@ -4,6 +4,7 @@ Shared project configuration: data paths and the agreed feature-table schema.
 Every module should import paths and column names from here instead of
 hard-coding them, so the whole team stays on the same interface.
 """
+from __future__ import annotations
 import os
 from pathlib import Path
 

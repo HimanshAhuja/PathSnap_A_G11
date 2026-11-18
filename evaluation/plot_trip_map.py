@@ -7,10 +7,11 @@ reference candidate highlighted) taken from a saved feature table.
 
     python -m evaluation.plot_trip_map --split train --trip 00000046
     python -m evaluation.plot_trip_map --split train --trip 00000046 \
-        --features-file results/features_train.parquet --gps-index 120
+        --features-file results/training_data.csv --gps-index 120
 
 Output: results/plots/map_<split>_<trip>.html
 """
+from __future__ import annotations
 import argparse
 import sys
 from pathlib import Path

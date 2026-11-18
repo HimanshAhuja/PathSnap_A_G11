@@ -2,11 +2,12 @@
 Plots built ONLY from real run outputs (owner: Himansh).
 
     python -m evaluation.generate_plots models      # from results/model_comparison.csv
-    python -m evaluation.generate_plots features --file results/features_train.parquet
+    python -m evaluation.generate_plots features --file results/training_data.csv
     python -m evaluation.generate_plots importance  # from models/best_model.pkl
 
 Figures are saved to results/plots/.
 """
+from __future__ import annotations
 import argparse
 import sys
 from pathlib import Path
@@ -82,6 +83,9 @@ def plot_feature_distributions(path):
 
 def plot_feature_importance():
     import joblib
+    if not config.BEST_MODEL_PATH.exists() or config.BEST_MODEL_PATH.stat().st_size == 0:
+        print(f"{config.BEST_MODEL_PATH} not trained/saved yet — skipped")
+        return
     obj = joblib.load(config.BEST_MODEL_PATH)
     model = obj["model"] if isinstance(obj, dict) else obj
     cols = obj.get("feature_columns") if isinstance(obj, dict) else getattr(model, "feature_names_in_", None)
@@ -110,6 +114,6 @@ if __name__ == "__main__":
     if a.what == "models":
         plot_model_comparison(a.file or config.RESULTS_DIR / "model_comparison.csv")
     elif a.what == "features":
-        plot_feature_distributions(a.file or config.RESULTS_DIR / "features_train.parquet")
+        plot_feature_distributions(a.file or config.RESULTS_DIR / "training_data.csv")
     else:
         plot_feature_importance()
