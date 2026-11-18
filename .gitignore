@@ -19,6 +19,8 @@ venv/
 # Large intermediate tables (regenerate with features/build_training_data.py)
 results/features_*.parquet
 results/features_*.csv
+results/training_data*.csv
+results/_selftest/
 
 # Secrets
 .env

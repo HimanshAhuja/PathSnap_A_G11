@@ -14,6 +14,7 @@ Why a per-trip local projection?
   which is far smaller than typical GPS noise. The SAME origin must be used for
   a trip's GPS track and its road nodes.
 """
+from __future__ import annotations
 import numpy as np
 
 EARTH_RADIUS_M = 6_371_000.0

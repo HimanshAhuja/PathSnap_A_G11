@@ -7,6 +7,7 @@ All functions work on the agreed candidate table: one row per
 Usage (summarise the model comparison table):
     python -m evaluation.generate_metrics
 """
+from __future__ import annotations
 import argparse
 import sys
 from pathlib import Path

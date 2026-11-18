@@ -31,7 +31,7 @@ PathSnap_A_G11/
 │   ├── feature_extraction.py
 │   └── build_training_data.py # build_trip_features(trip)
 ├── models/
-│   ├── train_models.py
+│   ├── train_model.py
 │   ├── evaluate_models.py
 │   └── best_model.pkl
 ├── evaluation/
@@ -79,7 +79,7 @@ GPS position. The error is far below GPS noise at trip scale (tens of km).
 | `preprocessing.load_data.load_trip(split, trip_id)` | `dict(trip_id, split, track[lon,lat,t], nodes[lon,lat], arcs[from_node,to_node], route[arc_id] or None)` |
 | `preprocessing.clean_data.clean_track(track)` | `(clean_track_df with gps_index column, report_dict)` |
 | `features.build_training_data.build_trip_features(trip)` | DataFrame, one row per (GPS point, candidate arc), columns below |
-| `models/best_model.pkl` (joblib) | `{"model": estimator with predict_proba, "feature_columns": [...]}` |
+| `models/best_model.pkl` (joblib) | fitted sklearn Pipeline with `predict_proba` (written by `models/train_model.py`) |
 
 Feature table (minimum schema, defined in `config.py`):
 
@@ -103,18 +103,18 @@ python -m evaluation.validate_pipeline --split train --trip 00000046
 python -m evaluation.validate_pipeline --split student_test --trip 00000052
 
 # Validate a saved feature table
-python -m evaluation.validate_pipeline --features-file results/features_train.parquet
+python -m evaluation.validate_pipeline --features-file results/training_data.csv
 
 # Metrics table and plots (from real run outputs only)
 python -m evaluation.generate_metrics
 python -m evaluation.generate_plots models
-python -m evaluation.generate_plots features --file results/features_train.parquet
+python -m evaluation.generate_plots features --file results/training_data.csv
 python -m evaluation.generate_plots importance
 
 # Interactive Folium map of a trip (optionally with one observation's candidates)
 python -m evaluation.plot_trip_map --split train --trip 00000046
 python -m evaluation.plot_trip_map --split train --trip 00000046 \
-    --features-file results/features_train.parquet --gps-index 120
+    --features-file results/training_data.csv --gps-index 120
 ```
 
 Validation logs are written to `results/logs/`, plots and maps to `results/plots/`.

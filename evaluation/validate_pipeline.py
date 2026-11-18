@@ -161,8 +161,8 @@ def check_features(rep, feats, n_arcs=None, n_gps=None):
 
 
 def run_model(rep, feats):
-    if not config.BEST_MODEL_PATH.exists():
-        rep.stage("model prediction", "PENDING", note=f"{config.BEST_MODEL_PATH.name} not saved yet")
+    if not config.BEST_MODEL_PATH.exists() or config.BEST_MODEL_PATH.stat().st_size == 0:
+        rep.stage("model prediction", "PENDING", note=f"{config.BEST_MODEL_PATH.name} not trained/saved yet")
         return
     import joblib
     t0 = time.perf_counter()

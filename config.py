@@ -25,7 +25,8 @@ def _find_data_root() -> Path:
     candidates.append(PROJECT_ROOT / "data")
     candidates.append(PROJECT_ROOT.parent / "Student folder")
     for c in candidates:
-        if (c / "train").is_dir():
+        # must contain real trip folders, not just a placeholder train/ directory
+        if (c / "train").is_dir() and any(p.is_dir() for p in (c / "train").iterdir()):
             return c
     # Fall back to the first option so error messages show a sensible path.
     return candidates[0]
