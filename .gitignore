@@ -29,3 +29,6 @@ results/student_test_data.csv
 
 # Secrets
 .env
+
+# Reserved evaluator trips: kept on Laptop 1 only, never committed
+data/evaluator_test.zip

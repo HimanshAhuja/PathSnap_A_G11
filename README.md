@@ -57,7 +57,7 @@ Data location: the code looks for a folder containing `train/` and `student_test
 2. `data/` inside the repo
 3. `../Student folder` (repo cloned next to the supplied materials)
 
-The raw data is not committed. Evaluator-testing data is never stored in this repo or used for development.
+The raw training and student-test data are committed as `data/pathsnap_raw.zip`. Evaluator-testing data is never stored in this repo or used for development.
 
 ## Data format (verified against the files)
 
@@ -127,10 +127,44 @@ Feature table: required schema, no ID columns used as features, no NaN/inf, no d
 (trip, gps_index, arc) rows, labels in {0, 1}, at most one positive per GPS point, valid arc
 and GPS indices, empty candidate sets, candidate miss rate and label balance.
 
+## Running the demo on two laptops (API + UI)
+
+**Laptop 1 - API** (has the repo, the models in `results/` and the evaluator trips in `data/evaluator_test/`, which is never committed):
+```bash
+source .venv/bin/activate
+pip install -r requirements.txt
+./run_api.sh            # prints  http://<laptop-1-IP>:8000 ; same as: uvicorn api.server:app --host 0.0.0.0 --port 8000
+```
+Every request is logged in this terminal: trip id, each pipeline stage with its time, and the final accuracy.
+
+**Laptop 2 - UI** (only needs `ui/index.html` and a browser, same Wi-Fi as Laptop 1):
+```bash
+./run_ui.sh             # then open http://localhost:8080
+```
+Enter `http://<laptop-1-IP>:8000`, press Connect, pick any of the ten trips.
+
+| Endpoint | What it does |
+|---|---|
+| `GET /health` | status and number of trips found |
+| `GET /trips` | the evaluation trips and their GPS point counts |
+| `POST /predict {"trip_id": "00000015"}` | runs the full pipeline (candidates, 32 features, three classifiers, HMM/Viterbi) and returns the predicted route plus metrics |
+
+The models see only `.track`, `.nodes` and `.arcs`. The `.route` file is read on the API after prediction, only to compute accuracy; it is never sent to the UI.
+
+## Final results
+
+| Partition | Top-1 | Route continuity | Route-arc accuracy |
+|---|---|---|---|
+| Student-test (10 trips) | 89.5% | 94.1% | 95.8% |
+| Evaluator-test (10 trips, frozen model) | 85.8% | 91.4% | 98.2% |
+
+Final model: average of tuned LightGBM, LightGBM ranker and a stage-2 context model, decoded with a continuity-aware HMM (`results/final_model.joblib`, `lgbm_ranker.joblib`, `stage2_model.joblib`, `final_hmm_params.json`). Full pipeline and experiments: `notebooks/PathSnap_full_pipeline.ipynb`. Processed tables: `data/processed/`. Raw data: `data/pathsnap_raw.zip`.
+
 ## Status
 
-- [x] Project structure, config, shared geometry, validation harness, metrics, plots, map
-- [ ] Preprocessing — loaders, cleaning, dataset statistics
-- [ ] Candidate generation and features
-- [ ] Five-model comparison
-- [ ] Bayesian optimisation, HMM/Viterbi, FastAPI, UI
+- [x] Project structure, config, shared geometry, validation harness, metrics, plots, maps
+- [x] Preprocessing - loaders, cleaning, dataset statistics
+- [x] Candidate generation and features
+- [x] Seven-model comparison
+- [x] Bayesian optimisation, HMM/Viterbi
+- [x] FastAPI backend and evaluator UI

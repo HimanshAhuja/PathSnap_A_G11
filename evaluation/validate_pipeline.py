@@ -133,9 +133,15 @@ def check_features(rep, feats, n_arcs=None, n_gps=None):
     leaked = [c for c in fcols if c in config.ID_COLUMNS]
     rep.check("no ID columns used as features", not leaked, str(leaked) if leaked else f"{len(fcols)} features: {fcols}")
     vals = feats[fcols].to_numpy(dtype=float)
-    bad = ~np.isfinite(vals)
-    per_col = {c: int(n) for c, n in zip(fcols, bad.sum(axis=0)) if n}
-    rep.check("no NaN/inf in features", not bad.any(), str(per_col) if per_col else "")
+    infinite = np.isinf(vals)
+    per_col_inf = {c: int(n) for c, n in zip(fcols, infinite.sum(axis=0)) if n}
+    rep.check("no infinite feature values", not infinite.any(), str(per_col_inf) if per_col_inf else "")
+    missing_vals = np.isnan(vals)
+    per_col_nan = {c: int(n) for c, n in zip(fcols, missing_vals.sum(axis=0)) if n}
+    rep.warn("no missing (NaN) feature values", not missing_vals.any(),
+             (f"{per_col_nan} — undefined values (e.g. first GPS point has no previous point, "
+              f"a stationary vehicle has no heading); the model pipeline must impute them")
+             if per_col_nan else "")
     dup = feats.duplicated(subset=config.ID_COLUMNS).sum()
     rep.check("no duplicate (trip, gps_index, arc) rows", dup == 0, f"{dup} duplicates")
     rep.check("labels are 0/1", feats["label"].isin([0, 1]).all(), str(sorted(int(v) for v in feats["label"].unique())[:5]))
@@ -143,7 +149,9 @@ def check_features(rep, feats, n_arcs=None, n_gps=None):
     rep.check("at most one positive per GPS point", (pos <= 1).all(), f"{(pos > 1).sum()} points with >1 positive")
     rep.check("distance >= 0 (metres)", (feats["distance"] >= 0).all(),
               f"median {feats['distance'].median():.1f} m, max {feats['distance'].max():.1f} m")
-    rep.check("bearing_difference within [0,180]", feats["bearing_difference"].between(0, 180).all())
+    bd = feats["bearing_difference"].dropna()
+    rep.check("bearing_difference within [0,180]", bd.between(0, 180).all(),
+              f"{(~bd.between(0, 180)).sum()} out of range (NaN excluded)")
     if n_arcs is not None:
         bad_ids = ~feats["candidate_arc_id"].between(0, n_arcs - 1)
         rep.check("candidate_arc_id indexes a real arc", not bad_ids.any(), f"{bad_ids.sum()} invalid")
