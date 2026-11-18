@@ -1,6 +1,6 @@
 # PathSnap — Distributed Map-Matching & Route Reconstruction
 
-UE24CS352A Machine Learning hackathon, PES University (RR Campus) — Team A_G11
+UE24CS352A Machine Learning hackathon, PES University - Team A_G11
 
 Reconstructs vehicle routes by matching noisy GPS observations to a road network:
 candidate generation → feature engineering → candidate classifier → HMM/Viterbi decoding →
