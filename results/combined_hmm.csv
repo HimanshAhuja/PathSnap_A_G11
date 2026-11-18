@@ -1,0 +1,2 @@
+method,top1_accuracy,hmm_params
+LightGBM+ranker+stage2 average + HMM (tuned on all 80 training trips),0.8936950146627566,"{""w"": 0.24356713289770335, ""next_pen"": -2.6237002938204257, ""uturn_pen"": -19.937369492070957, ""two_pen"": -5.388940446476873, ""back_pen"": -4.2543489617982235, ""far_pen"": -23.896520119356037, ""tau"": 38.60974652821773, ""gap_reset"": 21.3094689985241}"

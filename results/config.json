@@ -1,0 +1,175 @@
+{
+  "seed": 42,
+  "profile": "standard",
+  "settings": {
+    "N_SPLITS": 5,
+    "N_TRIALS": 20,
+    "OPTUNA_FOLDS": 3,
+    "OPTUNA_ROW_CAP": 250000,
+    "HMM_TRIALS": 30,
+    "HMM_TUNE_TRIPS": 40,
+    "ROW_CAP": {
+      "knn": 150000,
+      "random_forest": 300000,
+      "mlp": 300000
+    }
+  },
+  "files": {
+    "train": "training_data_1.csv",
+    "test": "student_test_data.csv",
+    "raw": "pathsnap_raw.zip"
+  },
+  "features": [
+    "distance",
+    "bearing_difference",
+    "speed",
+    "heading_change",
+    "segment_length",
+    "n_candidates",
+    "dist_rank",
+    "dist_minus_min",
+    "dist_ratio_min",
+    "dist_softmax",
+    "bear_rank",
+    "bear_minus_min",
+    "is_nearest",
+    "in_prev_cands",
+    "in_next_cands",
+    "is_prev_nearest",
+    "is_next_nearest",
+    "from_prev_nearest",
+    "to_next_nearest",
+    "gps_step_prev",
+    "gps_step_next",
+    "along_motion_m",
+    "along_motion_norm",
+    "win_bearing_diff",
+    "window_disp_m",
+    "win_bd_rank",
+    "proj_t",
+    "beyond_end_m",
+    "before_start_m",
+    "span_pen",
+    "span_pen_rank",
+    "signed_offset_m"
+  ],
+  "knn_features": [
+    "distance",
+    "dist_minus_min",
+    "along_motion_norm",
+    "win_bearing_diff",
+    "span_pen",
+    "is_prev_nearest",
+    "is_next_nearest",
+    "from_prev_nearest",
+    "to_next_nearest"
+  ],
+  "models": {
+    "logistic_regression": {
+      "family": "Linear",
+      "config": "C=1.0, L2, lbfgs, standardised"
+    },
+    "gaussian_nb": {
+      "family": "Probabilistic",
+      "config": "var_smoothing=1e-9"
+    },
+    "knn": {
+      "family": "Instance-based",
+      "config": "k=25, distance-weighted, 9 standardised features"
+    },
+    "decision_tree": {
+      "family": "Tree",
+      "config": "max_depth=12, min_samples_leaf=50"
+    },
+    "random_forest": {
+      "family": "Ensemble (bagging)",
+      "config": "150 trees, max_depth=18, min_samples_leaf=5"
+    },
+    "lightgbm": {
+      "family": "Boosting",
+      "config": "400 trees, lr=0.05, 63 leaves"
+    },
+    "mlp": {
+      "family": "Neural network",
+      "config": "hidden (64, 32), early stopping, standardised"
+    }
+  },
+  "selection_rule": "highest mean CV Top-1 on training trips; ties within 1 std broken by lower CV log loss",
+  "selected_model": "lightgbm",
+  "tuned": true,
+  "final_params": {
+    "n_estimators": "800",
+    "learning_rate": "0.054280473163219274",
+    "num_leaves": "173",
+    "min_child_samples": "29",
+    "subsample": "0.8568118968481243",
+    "colsample_bytree": "0.9234980616943327",
+    "reg_lambda": "0.008722143017973687"
+  },
+  "hmm": {
+    "params": {
+      "w": 0.22799119325708891,
+      "next_pen": -2.834839307522506,
+      "uturn_pen": -17.87344938887112,
+      "two_pen": -5.687319515958619,
+      "back_pen": -3.5755692799145637,
+      "far_pen": -24.586761515661948,
+      "tau": 70.67701652443273,
+      "gap_reset": 34.20107535911115
+    },
+    "tuned_on_training_trips": [
+      "00000004",
+      "00000005",
+      "00000008",
+      "00000010",
+      "00000012",
+      "00000014",
+      "00000021",
+      "00000025",
+      "00000027",
+      "00000028",
+      "00000033",
+      "00000034",
+      "00000035",
+      "00000036",
+      "00000037",
+      "00000038",
+      "00000039",
+      "00000041",
+      "00000045",
+      "00000046",
+      "00000047",
+      "00000050",
+      "00000051",
+      "00000054",
+      "00000061",
+      "00000062",
+      "00000068",
+      "00000069",
+      "00000072",
+      "00000074",
+      "00000081",
+      "00000083",
+      "00000084",
+      "00000088",
+      "00000092",
+      "00000093",
+      "00000095",
+      "00000096",
+      "00000097",
+      "00000099"
+    ],
+    "transition": "same=0 (+back_pen per 10 m backwards), successor=next_pen, U-turn=uturn_pen, two-hop=two_pen, other=far_pen; scaled by 1/(1+max(0,dt-1)/tau); reset if dt>gap_reset",
+    "emission": "w * log(p)"
+  },
+  "candidate_miss_rate": {
+    "train": 0.11750960814137046,
+    "test": 0.003340292275574086
+  },
+  "versions": {
+    "python": "3.12.16",
+    "sklearn": "1.9.1",
+    "lightgbm": "4.7.0",
+    "optuna": "5.1.0"
+  }
+}

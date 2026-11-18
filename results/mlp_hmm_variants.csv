@@ -1,0 +1,4 @@
+method,top1_accuracy,route_continuity,route_arc_accuracy
+"MLP + HMM (continuity-aware, previous)",0.8874633431085044,0.9150265542018119,0.9688940092165899
+MLP + HMM (best training Top-1),0.8879346459991622,0.9069106973808773,0.9689987431922916
+"MLP + HMM (70 trials, best training Top-1)",0.8858923334729787,0.9336034912718204,0.968108504398827
